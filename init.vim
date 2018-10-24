@@ -69,8 +69,8 @@ Plug 'google/yapf'
 
 " Markdown / Writing
 Plug 'godlygeek/tabular'
-" Plug 'plasticboy/vim-markdown'
-Plug 'gabrielelana/vim-markdown'
+Plug 'plasticboy/vim-markdown'
+" Plug 'gabrielelana/vim-markdown'
 " Plug 'dpelle/vim-LanguageTool' " Check grammar several languages TODO install java tool
 Plug 'reedes/vim-pencil' " TODO check if useful for writing
 
@@ -384,6 +384,9 @@ function SetPythonOptions()
     map <silent> <c-f> <Plug>(IPy-Complete) |
     map <silent> <c-?> <Plug>(Ipy-WordObjInfo)
 endfunction
+
+inoremap <silent><expr> <Tab>
+    \ pumvisible() ? "\<C-n>" : deoplete#manual_complete()
 
 " Iron.Nvim configuration:
 " run 'luafile $HOME/AppData/nvim/iron.lua'
