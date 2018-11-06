@@ -3,6 +3,11 @@
 " ----- Generic Settings ------
 let mapleader = ","
 let mapLocalLeader = ","
+" Mapping the reverse character search to another key
+noremap \ ,
+" Activate matchit
+runtime macros/matchit.vim
+
 set termguicolors
 filetype plugin indent on " filetype detection[ON] plugin[ON] indent[ON]
 
@@ -28,10 +33,8 @@ call plug#begin('~/.local/share/nvim/plugged')
 Plug 'scrooloose/nerdtree'
 Plug 'majutsushi/tagbar'
 Plug 'junegunn/vim-easy-align'
-Plug 'jiangmiao/auto-pairs' "Closing parenthesis etc
 Plug 'tpope/vim-fugitive' " Use for git commands while in Vim
 Plug 'tpope/vim-surround'
-" Plug 'powerline/powerline', {'rtp': 'powerline/bindings/vim/'} "Using airline
 
 
 " Generic Programming Support
@@ -48,15 +51,8 @@ endif
 Plug 'zchee/deoplete-jedi' " Autocompletion for Python
 Plug 'w0rp/ale'  "Asynchronous syntax check (ala syntastic)
 Plug 'skywind3000/asyncrun.vim' "Run Asynchronous tasks like make etc...
-" Plug 'neomake/neomake' " Asynchronous make for neovim TODO check if useful
-" Plug 'Vigemus/iron.nvim' ", {'do': ':UpdateRemotePlugins'}
-" Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
-" Plug 'ivanov/vim-ipython' " Only working with python2
-" Plug 'broesler/jupyter-vim' " For some reason they give error
-" Plug 'wmvanvliet/jupyter-vim'
 Plug 'bfredl/nvim-ipy'
 Plug 'tpope/vim-commentary'
-Plug 'KabbAmine/zeavim.vim'  "Integration with Zeal <leader>z
 
 
 " Integration with TMUX
@@ -70,9 +66,9 @@ Plug 'google/yapf'
 " Markdown / Writing
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
-" Plug 'gabrielelana/vim-markdown'
-" Plug 'dpelle/vim-LanguageTool' " Check grammar several languages TODO install java tool
 Plug 'reedes/vim-pencil' " TODO check if useful for writing
+Plug 'tyru/open-browser.vim' " For previm to open on current open browser
+Plug 'previm/previm' " Markdown Preview accepting mermaid
 
 " ColorScheme and visuals Theme / Interface
 Plug 'mhartington/oceanic-next'
@@ -144,10 +140,10 @@ endif
 " Theme
 colorscheme OceanicNext
 " colorscheme solarized
-" colorscheme spacegray " TODO Check these settings for spacegray
+" colorscheme spacegray 
 let g:spacegray_underline_search = 1
 let g:spacegray_italicize_comments = 1
-let g:hybrid_custom_term_colors = 1 " TODO Check these settings for hybrid
+let g:hybrid_custom_term_colors = 1 
 let g:hybrid_reduced_contrast = 1 
 set background=dark
 syntax enable
@@ -241,13 +237,6 @@ set foldlevel=99
 " let g:jedi#force_py_version = 2
 " let g:UltisnipsUsePythonVersion = 2
 "
-" Snippets handling
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
 
 let NERDTreeIgnore=['\.pyc$', '\~$'] "ignore files in NERDTree
 
@@ -270,12 +259,6 @@ au BufNewFile,BufRead *.js, *.html, *.css
 
 " enable all Python syntax highlighting features
 let python_highlight_all = 1
-
-" So that <tab> Completion in Ultisnippets works need to turn this off:
-" gabrielelana/vim-markdown
-let g:markdown_enable_insert_mode_mappings = 0
-" Enable folding in markdown
-let g:markdown_enable_folding = 1
 
 " FZF: This is the default extra key bindings
 " let g:fzf_action = {
@@ -310,6 +293,9 @@ if (&term == "pcterm" || &term == "win32")
         nnoremap <Char-0x07F> <BS>
 endif
 
+let g:zv_zeal_executable = has('win32')
+            \ ? $ProgramFiles . '\Zeal\zeal.exe'
+            \ : 'zeal'
 """""""""""""""""""""""""""""""""""""
 
 " Mappings configurationn
@@ -320,6 +306,12 @@ nnoremap <silent> [b :bprevious<CR>
 nnoremap <silent> ]b :bnext<CR>
 nnoremap <silent> [B :bfirst<CR>
 nnoremap <silent> ]B :blast<CR>
+
+" Terminal mode escape with ESC
+tnoremap <Esc> <C-\><C-n>
+
+" Easy expansion of Active File Directory (same as %:h)
+cnoremap <expr> %% getcmdtype() == ':' ? expand('%:h').'/' : '%%'
 
 map <C-n> :NERDTreeToggle<CR>
 map <C-m> :TagbarToggle<CR>
@@ -334,6 +326,7 @@ xmap <>l <Plug>(Limelight)
 
 " Open markdown files with Chrome.
 autocmd BufEnter *.md exe 'noremap <F9> :!start chrome %:p<CR>'
+" PreVim setup
 
 " Enable folding with the spacebar
 " nnoremap <space> za
@@ -366,12 +359,22 @@ function! s:compile_and_run()
     endif
 endfunction
 
-" Quickly navigate nvim panes (with ctrl direction)
+" Quickly navigate nvim panes (with alt direction)
 " In TMUX same keys but with ALT
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+" To use `ALT+{h,j,k,l}` to navigate windows from any mode: >
+tnoremap <A-h> <C-\><C-N><C-w>h
+tnoremap <A-j> <C-\><C-N><C-w>j
+tnoremap <A-k> <C-\><C-N><C-w>k
+tnoremap <A-l> <C-\><C-N><C-w>l
+inoremap <A-h> <C-\><C-N><C-w>h
+inoremap <A-j> <C-\><C-N><C-w>j
+inoremap <A-k> <C-\><C-N><C-w>k
+inoremap <A-l> <C-\><C-N><C-w>l
+nnoremap <A-h> <C-w>h
+nnoremap <A-j> <C-w>j
+nnoremap <A-k> <C-w>k
+nnoremap <A-l> <C-w>l
+
 autocmd FileType python nnoremap <>= :0,$!yapf<CR>
 
 " Bindings for nvim.ipy
@@ -388,5 +391,32 @@ endfunction
 inoremap <silent><expr> <Tab>
     \ pumvisible() ? "\<C-n>" : deoplete#manual_complete()
 
+" Snippets handling
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>" "c-n is working
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+let g:UltiSnipsListSnippets="A-m"
+let g:UltiSnipsSnippetDirectories=["UltiSnips","benignoSnips"]
+
+inoremap <expr><tab> pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><s-tab> pumvisible() ? "\<C-p>" : "\<TAB>"
+
+" Deoplete settings
+inoremap 
+    \ pumvisible() ? "<C-n>" :
+    \ check_back_space() ? "<TAB>" :
+    \ deoplete#mappings#manual_complete()
+
+function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1] =~ '\s'
+endfunction
+
+augroup AsciiDoc
+    au!
+    autocmd FileType asciidoc au BufWritePre <buffer>
+                \ :silent 1,20s/^lastmod\s*=\s*".*"/\="lastmod = \"". strftime("%FT%H:%M:%S").strftime("%z")[:2]. ":".strftime("%z")[3:]."\""/e
+augroup END
 " Iron.Nvim configuration:
 " run 'luafile $HOME/AppData/nvim/iron.lua'
