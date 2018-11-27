@@ -31,6 +31,7 @@ call plug#begin('~/.local/share/nvim/plugged')
 
 
 " Utility
+Plug 'tpope/vim-sensible' "Sensible basic settings
 Plug 'scrooloose/nerdtree'
 Plug 'majutsushi/tagbar'
 Plug 'junegunn/vim-easy-align'
