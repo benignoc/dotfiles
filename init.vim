@@ -29,7 +29,6 @@ set guifont=DejaVu\ Sans\ Mono\ for\ Powerline
 " - Avoid using standard Vim directory names like 'plugin'
 call plug#begin('~/.local/share/nvim/plugged')
 
-
 " Utility
 Plug 'tpope/vim-sensible' "Sensible basic settings
 Plug 'scrooloose/nerdtree'
