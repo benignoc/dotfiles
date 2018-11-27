@@ -22,7 +22,6 @@ set guifont=DejaVu\ Sans\ Mono\ for\ Powerline
 " set guifont=Inconsolata
 " set guifont=Inconsolata\ for\ Powerline:s12
 
-
 " Setup Vim-Plug ------------------------------------------------{{{
 " Specify a directory for plugins
 " - For Neovim: ~/.local/share/nvim/plugged
@@ -82,8 +81,6 @@ Plug 'junegunn/limelight.vim'
 Plug 'ajh17/Spacegray.vim' "TODO check if its nice
 "Plug 'w0ng/vim-hybrid' " TODO Check if its nice
 Plug 'tomasr/molokai'
-
-
 
 " PlugInstall and PlugUpdate will clone fzf in ~/.fzf and run install script
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
