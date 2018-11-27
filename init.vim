@@ -15,6 +15,7 @@ filetype plugin indent on " filetype detection[ON] plugin[ON] indent[ON]
 set encoding=utf-8
 " syntax on
 set nocompatible
+syntax enable
 " Setting default font
 "set guifont=DejaVu\ Sans:s12
 set guifont=DejaVu\ Sans\ Mono\ for\ Powerline
@@ -53,7 +54,7 @@ Plug 'w0rp/ale'  "Asynchronous syntax check (ala syntastic)
 Plug 'skywind3000/asyncrun.vim' "Run Asynchronous tasks like make etc...
 Plug 'bfredl/nvim-ipy'
 Plug 'tpope/vim-commentary'
-
+Plug 'mattn/emmet-vim'
 
 " Integration with TMUX
 "Plug 'benmills/vimux' 
@@ -72,14 +73,15 @@ Plug 'previm/previm' " Markdown Preview accepting mermaid
 
 " ColorScheme and visuals Theme / Interface
 Plug 'mhartington/oceanic-next'
-Plug 'altercation/vim-colors-solarized'
+"Plug 'altercation/vim-colors-solarized'
 Plug 'vim-airline/vim-airline' " Barra de estado de vim
 Plug 'vim-airline/vim-airline-themes'  " Temas para airline
 Plug 'jnurmine/Zenburn'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'ajh17/Spacegray.vim' "TODO check if its nice
-Plug 'w0ng/vim-hybrid' " TODO Check if its nice
+"Plug 'w0ng/vim-hybrid' " TODO Check if its nice
+Plug 'tomasr/molokai'
 
 
 
@@ -138,15 +140,16 @@ if (has("termguicolors"))
  set termguicolors
 endif
 " Theme
-colorscheme OceanicNext
-" colorscheme solarized
+colorscheme molokai
+" let g:molokai_original=1
+" let g:rehash256=1
+" colorscheme OceanicNext
 " colorscheme spacegray 
 let g:spacegray_underline_search = 1
 let g:spacegray_italicize_comments = 1
 let g:hybrid_custom_term_colors = 1 
 let g:hybrid_reduced_contrast = 1 
 set background=dark
-syntax enable
 " to enter limelight and exist limelight upon entering or exiting Goyo
 autocmd! User GoyoEnter Limelight
 autocmd! User GoyoLeave Limelight!
@@ -199,6 +202,10 @@ augroup pencil
   autocmd FileType markdown,mkd call pencil#init()
   autocmd FileType text         call pencil#init()
 augroup END
+" Other markdown settings:
+" Folding (use zc zo...)
+set foldcolumn=2
+let g:markdown_folding=1
 
 
 " Vim-Test Configuration "TODO Check 
@@ -212,7 +219,6 @@ augroup END
 let g:netrw_list_hide= '.*\.swp$,.*\.pyc$' " Ignore .\swp in list
 let g:netrw_winsize = 25
 
-let g:deoplete#enable_at_startup = 1
 "
 " asyncrun option for opening quickfix automatically
 let g:asyncrun_open = 15
@@ -307,6 +313,9 @@ nnoremap <silent> ]b :bnext<CR>
 nnoremap <silent> [B :bfirst<CR>
 nnoremap <silent> ]B :blast<CR>
 
+"Expand redraw to also hide highlighting
+nnoremap <silent> <C-l> :<C-u>nohlsearch<CR><c-l>
+
 " Terminal mode escape with ESC
 tnoremap <Esc> <C-\><C-n>
 
@@ -316,13 +325,13 @@ cnoremap <expr> %% getcmdtype() == ':' ? expand('%:h').'/' : '%%'
 map <C-n> :NERDTreeToggle<CR>
 map <C-m> :TagbarToggle<CR>
 " Launch spelling check Toggle spell checking
-nnoremap <>s :set invspell<CR> 
+nnoremap <localLeader>s :set invspell<CR> 
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
-nmap <>l <Plug>(Limelight)
-xmap <>l <Plug>(Limelight)
+nmap <localLeader>l <Plug>(Limelight)
+xmap <localLeader>l <Plug>(Limelight)
 
 " Open markdown files with Chrome.
 autocmd BufEnter *.md exe 'noremap <F9> :!start chrome %:p<CR>'
@@ -388,21 +397,12 @@ function SetPythonOptions()
     map <silent> <c-?> <Plug>(Ipy-WordObjInfo)
 endfunction
 
-inoremap <silent><expr> <Tab>
-    \ pumvisible() ? "\<C-n>" : deoplete#manual_complete()
-
-" Snippets handling
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<tab>" "c-n is working
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
-let g:UltiSnipsListSnippets="A-m"
-let g:UltiSnipsSnippetDirectories=["UltiSnips","benignoSnips"]
-
-inoremap <expr><tab> pumvisible() ? "\<C-n>" : "\<TAB>"
-inoremap <expr><s-tab> pumvisible() ? "\<C-p>" : "\<TAB>"
 
 " Deoplete settings
+let g:deoplete#enable_at_startup = 1
+"call deoplete#custom#option('deoplete-options-yarp', v:true)
+inoremap <silent><expr> <Tab>
+    \ pumvisible() ? "\<C-n>" : deoplete#manual_complete()
 inoremap 
     \ pumvisible() ? "<C-n>" :
     \ check_back_space() ? "<TAB>" :
@@ -418,5 +418,32 @@ augroup AsciiDoc
     autocmd FileType asciidoc au BufWritePre <buffer>
                 \ :silent 1,20s/^lastmod\s*=\s*".*"/\="lastmod = \"". strftime("%FT%H:%M:%S").strftime("%z")[:2]. ":".strftime("%z")[3:]."\""/e
 augroup END
+
+" Snippets handling
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsUsePythonVersion = 3 " Normally autodetected, but just in case
+let g:UltiSnipsExpandTrigger="<tab>" "c-n is working
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+let g:UltiSnipsListSnippets="<c-1>"
+let g:UltiSnipsSnippetDirectories=["UltiSnips","benignoSnips"]
+let g:UltiSnipsEditSplit="vertical"
+" Allow UltiSnips to work with Deoplete
+call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
+
+inoremap <expr><tab> pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><s-tab> pumvisible() ? "\<C-p>" : "\<TAB>"
+
 " Iron.Nvim configuration:
 " run 'luafile $HOME/AppData/nvim/iron.lua'
+
+" Remap * to search all selection forward in visual mode. # backwards
+xnoremap * :<C-u>call <SID>VSetSearch('/')<CR>/<C-R>=@/<CR><CR>
+xnoremap # :<C-u>call <SID>VSetSearch('?')<CR>?<C-R>=@/<CR><CR>
+
+function! s:VSetSearch(cmdtype)
+    let temp = @s
+    norm! gv"sy
+    let @/ = '\V' . substitute(escape(@s, a:cmdtype.'\'), '\n', '\\n', 'g')
+    let @s = temp
+endfunction
