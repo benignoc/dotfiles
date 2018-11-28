@@ -2,7 +2,7 @@
 
 " ----- Generic Settings ------
 let mapleader = ","
-let mapLocalLeader = ","
+let maplocalleader = ","
 " Mapping the reverse character search to another key
 noremap \ ,
 " Activate matchit
@@ -322,13 +322,13 @@ cnoremap <expr> %% getcmdtype() == ':' ? expand('%:h').'/' : '%%'
 map <C-n> :NERDTreeToggle<CR>
 map <C-m> :TagbarToggle<CR>
 " Launch spelling check Toggle spell checking
-nnoremap <localLeader>s :set invspell<CR> 
+nnoremap <LocalLeader>s :set invspell<CR> 
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
-nmap <localLeader>l <Plug>(Limelight)
-xmap <localLeader>l <Plug>(Limelight)
+nmap <LocalLeader>l <Plug>(Limelight)
+xmap <LocalLeader>l <Plug>(Limelight)
 
 " Open markdown files with Chrome.
 autocmd BufEnter *.md exe 'noremap <F9> :!start chrome %:p<CR>'
@@ -415,6 +415,17 @@ augroup AsciiDoc
     autocmd FileType asciidoc au BufWritePre <buffer>
                 \ :silent 1,20s/^lastmod\s*=\s*".*"/\="lastmod = \"". strftime("%FT%H:%M:%S").strftime("%z")[:2]. ":".strftime("%z")[3:]."\""/e
 augroup END
+
+" jedi
+let g:jedi#use_tabs_not_buffers = 0  " use buffers instead of tabs
+let g:jedi#show_call_signatures = "1"
+let g:jedi#goto_command = "<LocalLeader>gt"
+let g:jedi#goto_assignments_command = "<LocalLeader>ga"
+let g:jedi#goto_definitions_command = "<LocalLeader>gg"
+let g:jedi#documentation_command = "K"
+let g:jedi#usages_command = "<LocalLeader>u"
+let g:jedi#completions_command = "<C-Space>"
+let g:jedi#rename_command = "<Leader>r"
 
 " Snippets handling
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
