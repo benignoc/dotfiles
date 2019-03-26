@@ -18,7 +18,7 @@ set nocompatible
 syntax enable
 " Setting default font
 "set guifont=DejaVu\ Sans:s12
-set guifont=DejaVu\ Sans\ Mono\ for\ Powerline
+set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:s12
 " set guifont=Inconsolata
 " set guifont=Inconsolata\ for\ Powerline:s12
 
@@ -30,7 +30,6 @@ call plug#begin('~/.local/share/nvim/plugged')
 
 " Utility
 Plug 'tpope/vim-sensible' "Sensible basic settings
-Plug 'scrooloose/nerdtree'
 Plug 'majutsushi/tagbar'
 Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-fugitive' " Use for git commands while in Vim
@@ -38,17 +37,17 @@ Plug 'tpope/vim-surround'
 
 
 " Generic Programming Support
-Plug 'cjrh/vim-conda' " to use :CondaChangeEnv<ENTER> adapt to Conda env
+" Plug 'cjrh/vim-conda' " to use :CondaChangeEnv<ENTER> adapt to Conda env
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
-if has('nvim') " Deoplete is needed to use deoplete-jedi
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
+" if has('nvim') " Deoplete is needed to use deoplete-jedi
+"   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+" else
+"   Plug 'Shougo/deoplete.nvim'
+"   Plug 'roxma/nvim-yarp'
+"   Plug 'roxma/vim-hug-neovim-rpc'
+" endif
 " TODO Check if happier with neocomplete
-Plug 'zchee/deoplete-jedi' " Autocompletion for Python
+" Plug 'zchee/deoplete-jedi' " Autocompletion for Python
 Plug 'w0rp/ale'  "Asynchronous syntax check (ala syntastic)
 Plug 'skywind3000/asyncrun.vim' "Run Asynchronous tasks like make etc...
 Plug 'bfredl/nvim-ipy'
@@ -62,6 +61,7 @@ Plug 'mattn/emmet-vim'
 
 " Python
 Plug 'google/yapf'
+Plug 'w0rp/ale'
 
 " Markdown / Writing
 Plug 'godlygeek/tabular'
@@ -71,6 +71,7 @@ Plug 'tyru/open-browser.vim' " For previm to open on current open browser
 Plug 'previm/previm' " Markdown Preview accepting mermaid
 
 " ColorScheme and visuals Theme / Interface
+Plug 'mhinz/vim-startify'
 Plug 'mhartington/oceanic-next'
 "Plug 'altercation/vim-colors-solarized'
 Plug 'vim-airline/vim-airline' " Barra de estado de vim
@@ -281,6 +282,8 @@ if has("win32") || has("win16")
   cd C:\Users\benig\
   let g:python3_host_prog='C:\tools\miniconda3\python'
   let g:python_host_prog='C:\tools\miniconda3\envs\py27\python'
+  " let g:python3_host_prog='C:\tools\Anaconda3\python'
+  " let g:python_host_prog='C:\tools\Anaconda3\envs\py27\python'
 else
   set shell=/bin/sh
 endif
@@ -395,15 +398,15 @@ function SetPythonOptions()
 endfunction
 
 
-" Deoplete settings
-let g:deoplete#enable_at_startup = 1
-"call deoplete#custom#option('deoplete-options-yarp', v:true)
-inoremap <silent><expr> <Tab>
-    \ pumvisible() ? "\<C-n>" : deoplete#manual_complete()
-inoremap 
-    \ pumvisible() ? "<C-n>" :
-    \ check_back_space() ? "<TAB>" :
-    \ deoplete#mappings#manual_complete()
+"" Deoplete settings
+"let g:deoplete#enable_at_startup = 1
+""call deoplete#custom#option('deoplete-options-yarp', v:true)
+"inoremap <silent><expr> <Tab>
+"    \ pumvisible() ? "\<C-n>" : deoplete#manual_complete()
+"inoremap 
+"    \ pumvisible() ? "<C-n>" :
+"    \ check_back_space() ? "<TAB>" :
+"    \ deoplete#mappings#manual_complete()
 
 function! s:check_back_space() abort
     let col = col('.') - 1
@@ -437,7 +440,7 @@ let g:UltiSnipsListSnippets="<c-1>"
 let g:UltiSnipsSnippetDirectories=["UltiSnips","benignoSnips"]
 let g:UltiSnipsEditSplit="vertical"
 " Allow UltiSnips to work with Deoplete
-call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
+" call deoplete#custom#source('ultisnips', 'matchers', ['matcher_fuzzy'])
 
 inoremap <expr><tab> pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr><s-tab> pumvisible() ? "\<C-p>" : "\<TAB>"
