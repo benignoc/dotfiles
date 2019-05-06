@@ -53,8 +53,7 @@ Plug 'junegunn/vim-easy-align' "{{{
 
     " Start interactive EasyAlign in visual mode (e.g. vipga)
     " Start interactive EasyAlign for a motion/text object (e.g. gaip)
-    nmap ga
-    " <Plug>(EasyAlign)
+    nmap ga <Plug>(EasyAlign)
 "}}}
 
 " ---------- Programming Plugins ---------- "{{{
@@ -185,6 +184,8 @@ nnoremap <silent> <C-l> :<C-u>nohlsearch<CR><c-l>
 " Launch spelling check Toggle spell checking
 nnoremap <LocalLeader>s :set invspell<CR
 
+" Map ESC to exit terminal mode
+tnoremap <Esc> <C-\><C-n>
 " Quickly navigate nvim panes (with alt direction) "{{{
 " In TMUX same keys but with ALT 
 " To use `ALT+{h,j,k,l}` to navigate windows from any mode: >
