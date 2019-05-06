@@ -40,7 +40,12 @@ Plug 'tpope/vim-unimpaired' "{{{
 	" easier mappings for navigating the quickfix list
 	nnoremap <silent> <A-up> :cprevious<cr>
 	nnoremap <silent> <A-down> :cnext<cr>
-"}}} 
+"}}}
+
+" PlugInstall and PlugUpdate will clone fzf in ~/.fzf and run the install script
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+  " Both options are optional. You don't have to install fzf in ~/.fzf
+  " and you don't have to run the install script if you use fzf only in Vim.
 
 " Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
 Plug 'junegunn/vim-easy-align' "{{{

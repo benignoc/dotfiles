@@ -57,8 +57,7 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-    PS1="\n[\[\033[32m\]\w]\[\033[0m\]\n\[\033[1;36m\]\[\033[1;33m\]> \[\033[0m\]"
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -73,10 +72,16 @@ xterm*|rxvt*)
     ;;
 esac
 
+# Autostart Tmux if it exists in the system, we are in an interactive shell
+# and make sure tmux doesnt run within itself
+# if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
+  # exec tmux
+# fi
+
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    #alias ls='ls --color=auto'
+    alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -117,6 +122,19 @@ if ! shopt -oq posix; then
   fi
 fi
 
-PATH=$PATH:$HOME/miniconda/bin
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/bcalvo/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/bcalvo/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/bcalvo/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/bcalvo/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
