@@ -28,6 +28,9 @@ bind r source ~/.tmux.conf
 ### DESIGN CHANGES ###
 ######################
 
+# Powerline
+source "/home/bcalvo/.local/pipx/venvs/powerline-status/lib/python3.8/site-packages/powerline/bindings/tmux/powerline.conf"
+
 # loud or quiet?
 set-option -g visual-activity off
 set-option -g visual-bell off

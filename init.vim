@@ -41,11 +41,13 @@ Plug 'tpope/vim-unimpaired' "{{{
 	nnoremap <silent> <A-up> :cprevious<cr>
 	nnoremap <silent> <A-down> :cnext<cr>
 "}}}
+" Better language packs
+Plug 'sheerun/vim-polyglot'
 
 " PlugInstall and PlugUpdate will clone fzf in ~/.fzf and run the install script
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-  " Both options are optional. You don't have to install fzf in ~/.fzf
-  " and you don't have to run the install script if you use fzf only in Vim.
+" Both options are optional. You don't have to install fzf in ~/.fzf
+" and you don't have to run the install script if you use fzf only in Vim.
 
 " Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
 Plug 'junegunn/vim-easy-align' "{{{
@@ -65,14 +67,31 @@ Plug 'junegunn/vim-easy-align' "{{{
 Plug 'w0rp/ale' "{{{
 	let g:ale_linters = {'spec': ['rpmlint']}
 "}}}
+
 Plug 'tpope/vim-commentary'
-Plug 'Sirver/ultisnips'
-Plug 'honza/vim-snippets'
+
+" Asynchronous autocompletion
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+
+" Management of snippets, and snippet library
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
+
 " Plug 'bfredl/nvim-ipy'
-Plug 'skywind3000/asyncrun.vim' "Run Asynchronous tasks like make etc...
+"
+" Run Asynchronous tasks like make etc...
+Plug 'skywind3000/asyncrun.vim'
+
+" Generate HTML in a simple way
 Plug 'mattn/emmet-vim'
+
+" Class/module browser
 Plug 'majutsushi/tagbar' "{{{
-    map <C-m> :TagbarToggle<CR>
+    " toggle tagbar display
+    " map <C-m> :TagbarToggle<CR>
+    map <F4> :TagbarToggle<CR>
+    " autofocus on tagbar open
+    let g:tagbar_autofocus = 1
     "}}}
 
 " ---------- Markdown / Writing ----------
@@ -92,8 +111,6 @@ Plug 'junegunn/limelight.vim' "{{{
 " ColorScheme and visuals Theme / Interface
 Plug 'mhinz/vim-startify'
 Plug 'mhartington/oceanic-next' 
-Plug 'vim-airline/vim-airline' " Barra de estado de vim
-Plug 'vim-airline/vim-airline-themes'  " Temas para airline
 Plug 'jnurmine/Zenburn'
 Plug 'ajh17/Spacegray.vim' "TODO check if its nice
 Plug 'w0ng/vim-hybrid' " TODO Check if its nice
@@ -116,6 +133,9 @@ set tabstop=4
 set shiftwidth=4
 set smarttab
 set expandtab
+
+" remove ugly vertical lines on window division
+set fillchars+=vert:\ 
 
 "Proper PEP8 indentation
 au BufNewFile,BufRead *.py
@@ -152,16 +172,6 @@ set smartcase
 
 " Theme "{{{
 colorscheme molokai
-" Vim-Airline Configuration
-let g:airline#extensions#tabline#enabled = 1 " Mostrar buffers abiertos (como pestañas)
-let g:airline#extensions#tabline#fnamemod = ':t'  " Mostrar sólo el nombre del archivo
-" let g:airline_theme='hybrid'
-set noshowmode  " No mostrar el modo actual (ya lo muestra la barra de estado)
-" air-line
-let g:airline_powerline_fonts = 1 " Cargar fuente Powerline y símbolos (ver nota)
-if !exists('g:airline_symbols')
-    let g:airline_symbols = {}
-endif
 
 " enable all Python syntax highlighting features
 let python_highlight_all = 1
@@ -174,6 +184,36 @@ let g:netrw_winsize = 25
 " Enable folding
 set foldmethod=indent
 set foldlevel=99
+
+" Ability to add python breakpoints
+" (I use ipdb, but you can change it to whatever tool you use for debugging)
+au FileType python map <silent> <leader>b Oimport ipdb; ipdb.set_trace()<esc>
+
+" Deoplete "{{{
+let g:deoplete#enable_at_startup = 1
+"}}}
+
+" Snippets "{{{
+" Plugin key-mappings.
+" Note: It must be "imap" and "smap".  It uses <Plug> mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-k>     <Plug>(neosnippet_expand_target)
+
+" SuperTab like snippets behavior.
+" Note: It must be "imap" and "smap".  It uses <Plug> mappings.
+"imap <expr><TAB>
+" \ pumvisible() ? "\<C-n>" :
+" \ neosnippet#expandable_or_jumpable() ?
+" \    "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+
+" For conceal markers.
+if has('conceal')
+  set conceallevel=2 concealcursor=niv
+  endif
+"}}}
 
 """""""""""""""""""""""""""""""""""""
 " Mappings configurationn
@@ -207,3 +247,32 @@ nnoremap <A-j> <C-w>j
 nnoremap <A-k> <C-w>k
 nnoremap <A-l> <C-w>l
 "}}}
+
+
+"""""""""""""""""""""""""""""""""""""
+" Status Line
+"""""""""""""""""""""""""""""""""""""
+
+function! GitBranch()
+  return system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
+endfunction
+
+function! StatuslineGit()
+  let l:branchname = GitBranch()
+  return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
+endfunction
+
+set statusline=
+set statusline+=%#PmenuSel#
+set statusline+=%{StatuslineGit()}
+set statusline+=%#LineNr#
+set statusline+=\ %f
+set statusline+=%m\
+set statusline+=%=
+set statusline+=%#CursorColumn#
+set statusline+=\ %y
+set statusline+=\ %{&fileencoding?&fileencoding:&encoding}
+set statusline+=\[%{&fileformat}\]
+set statusline+=\ %p%%
+set statusline+=\ %l:%c
+set statusline+=\ 

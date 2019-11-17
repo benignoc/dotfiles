@@ -40,6 +40,12 @@ case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
 esac
 
+# Autostart Tmux if it exists in the system, we are in an interactive shell
+# and make sure tmux doesnt run within itself
+# if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
+#   exec tmux
+# fi
+
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
@@ -56,10 +62,14 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+git_branch() {
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+    }
+
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\] \$$(git_branch) '
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\w \$$(git_branch) '
 fi
 unset color_prompt force_color_prompt
 
@@ -71,12 +81,6 @@ xterm*|rxvt*)
 *)
     ;;
 esac
-
-# Autostart Tmux if it exists in the system, we are in an interactive shell
-# and make sure tmux doesnt run within itself
-# if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
-  # exec tmux
-# fi
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -122,6 +126,19 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# To load Pyenv automatically
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+# Created by `userpath` on 2019-11-14 17:57:28
+export PATH="$PATH:/home/bcalvo/.local/bin"
+# For Neovim
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+
+REPO_ROOT=/home/bcalvo/.local/pipx/venvs
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/home/bcalvo/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
@@ -137,4 +154,4 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+export BROWSER="/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe"
