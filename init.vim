@@ -7,7 +7,7 @@ set encoding=utf-8
 " Setting default font
 set guifont=MesloLGM\ NF
 
-" vim: fdm=marker ts=2 sts=2 sw=2
+""vim: fdm=marker ts=2 sts=2 sw=2
 
 " Check https://github.com/saaguero/dotvim/blob/master/.vimrc
 " Variables {{{
