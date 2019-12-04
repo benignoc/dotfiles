@@ -77,8 +77,8 @@ Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/neosnippet.vim'
 Plug 'Shougo/neosnippet-snippets'
 
-" Plug 'bfredl/nvim-ipy'
-"
+Plug 'bfredl/nvim-ipy'
+
 " Run Asynchronous tasks like make etc...
 Plug 'skywind3000/asyncrun.vim'
 
@@ -96,9 +96,16 @@ Plug 'majutsushi/tagbar' "{{{
 
 " ---------- Markdown / Writing ----------
 Plug 'godlygeek/tabular'
-Plug 'plasticboy/vim-markdown'
-Plug 'tyru/open-browser.vim' " For previm to open on current open browser
-Plug 'previm/previm' " Markdown Preview accepting mermaid
+Plug 'plasticboy/vim-markdown' "{{{
+    autocmd Filetype markdown let b:sleuth_automatic=0
+    autocmd Filetype markdown set conceallevel=0
+"}}}
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } } "{{{
+    let g:mkdp_markdown_css='~/dotfiles/github-markdown-css.css'
+    let g:mkdp_refresh_slow=1
+    "}}}
+" Plug 'tyru/open-browser.vim' " For previm to open on current open browser
+" Plug 'previm/previm' " Markdown Preview accepting mermaid
 Plug 'junegunn/goyo.vim' "{{{
 autocmd! User GoyoEnter Limelight
 autocmd! User GoyoLeave Limelight! 
@@ -214,6 +221,12 @@ if has('conceal')
   set conceallevel=2 concealcursor=niv
   endif
 "}}}
+
+if s:is_windows
+    let g:python3_host_prog = 'C:\Users\b.calvo\miniconda3\python.EXE'
+else
+    let g:python3_host_prog = '/home/bcalvo/.pyenv/shims/python'
+endif
 
 """""""""""""""""""""""""""""""""""""
 " Mappings configurationn
