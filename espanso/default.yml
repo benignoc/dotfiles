@@ -1,0 +1,106 @@
+# espanso configuration file
+
+# This is the default configuration file, change it as you like it
+# You can refer to the official documentation:
+# https://espanso.org/docs/
+
+# Matches are the substitution rules, when you type the "trigger" string
+# it gets replaced by the "replace" string.
+
+global_vars:
+  - name: "name"
+    type: "dummy"
+    params:
+      echo: "Benigno"
+
+matches:
+  # Simple text replacement
+  - trigger: ":espanso"
+    replace: "Hi there!"
+
+  # Dates & Time
+  - trigger: ":date"
+    replace: "{{mydate}}"
+    vars:
+      - name: mydate
+        type: date
+        params:
+          format: "%d/%m/%Y"
+  - trigger: ":now"
+    replace: "{{mytime}}"
+    vars:
+      - name: mytime
+        type: date
+        params:
+          format: "%Y-%m-%d %H:%M"
+
+              
+  # Shell commands
+
+  - trigger: ":shell"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "echo Hello from your shell"
+
+  - trigger: ":ip"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "curl 'https://api.ipify.org'"
+
+  - trigger: ":localip"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "ip a | grep 'inet 192' | awk '{ print $2 }'"
+
+  # Emails
+
+  - trigger: ":br"
+    replace: |
+            Best regards,
+            {{name}}
+
+  - trigger: ":uns"
+    replace: "Un saludo,\nBenigno"
+     
+  - trigger: ":br"
+    replace: "Best regards,\nBenigno"
+
+  - trigger: ":unab"
+    replace: "Un abrazo,\nBenigno"
+
+  # Script Extension - Python
+  - trigger: ":pyscript"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: script
+        params:
+          args:
+            - python
+            - "%CONFIG%/scripts/hello.py"
+
+  # Networking
+  - trigger: ":restr_es"
+    form: "Hola {{nombre}},\nEstamos en proceso de restructuración en la empresa y están congeladas todas las contrataciones de servicios durante todo este año.\n\nUn saludo,\nBenigno."
+
+  - trigger: ":restr_en"
+    form: "Hello {{nombre}},\nWe are currently undertaking a heavy restructuring of the company and we have all new service hiring in lock down for the rest of the year. Thank you for understanding,\n\nBest regards,\nBenigno."
+
+  - trigger: ":ligen_es"
+    form: "Hola {{nombre}},\nsoy Benigno Calvo, encantado de saludarte: \nVeo que compartimos algunos contactos, y seguramente podríamos tener sinergias importantes en un futuro.\nMe gustaría mucho tenerte en mi red de contactos, que tengas una buena semana.\n\nBenigno"
+
+  - trigger: ":present_short"
+    replace: "Ejecutivo con 20 años de experiencia en posiciones de gestión, generando crecimiento a través de la transformación digital: Soluciones cloud, Machine Learning, Business Intelligence, y arquitecturas de datos modernas. Experiencia internacional demostrable y profundo conocimiento del negocio. Logros principales:\n\n    - Actualización de planta de producción, aumentando capacidades en un 20%, reduciendo las reclamaciones de calidad en un 30% y triplicando ventas.\n    - Transformación digital, mejorando EBITDA en 3 puntos, reduciendo tiempos de desarrollo de nuevas fórmulas en un 15% e incrementando la capacidad de producción a través de la integración de sistemas con la robotización en un 30%."
+
+  - trigger: ":present_long"
+    replace: "Ejecutivo con 20 años de experiencia en posiciones de gestión, generando crecimiento a través de la transformación digital: Soluciones cloud, Machine Learning, Business Intelligence, y arquitecturas de datos modernas. Experiencia internacional demostrable y profundo conocimiento del negocio. Logros principales:\n\n    - 2008-2010 Startup de empresa, alcanzando 3M€ facturación, dirigiendo todos los sistemas en empresas clientes con totales de facturación en torno a 1000M€.\n    - 2010-2013 Transformación de sistemas y procesos en Iberchem mejorando en 3 puntos el EBITDA y reduciendo en un 15% los tiempos de desarrollo de nuevas fórmulas.\n    - 2013-2019 Transformación de una planta producción en Túnez, actualizando a nivel Europeo todos los procesos, calidad y sistemas, aumentando la capacidad de producción en un 20% y reduciendo los problemas de calidad en un 30%.\n    - 2013-2019 Posicionamiento comercial y lanzamiento de una nueva división en Túnez y Argelia, asegurando la creación de una nueva planta de producción para el nuevo mercado y triplicando ventas en mercados existentes.\n    - 2019-2021 Creación de una plataforma de Machine Learning para gestión de auditorías, reduciendo el tiempo de los consultores en un 20% en tareas de investigación y preparación.\n"
+
