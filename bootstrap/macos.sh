@@ -1,20 +1,39 @@
 #!/usr/bin/env bash
+
+# Execute from dotfiles folder
 set -euo pipefail
 
 xcode-select --install 2>/dev/null || true
+
+# Homebrew
 if ! command -v brew >/dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
 brew update
-brew install neovim ripgrep fd fzf git lazygit node pnpm python3
-$(brew --prefix)/opt/fzf/install --key-bindings --completion --no-bash --no-zsh --no-fish
+brew install neovim ripgrep fd fzf git lazygit node stow
 
-# Symlink nvim config
-mkdir -p ~/.config/nvim
-rsync -a --delete "$(pwd)/nvim/" ~/.config/nvim/
+# FZF key-bindings (optional)
+"$(brew --prefix)"/opt/fzf/install --key-bindings --completion --no-bash --no-fish --no-zsh
 
-# Shell config
-grep -q 'NOTES_DIR' ~/.zshrc 2>/dev/null || cat "$(pwd)/shell/mac.zsh" >>~/.zshrc
+# Symlink dotfiles with stow (run from repo root)
+cd "$(dirname "$0")/.." # go to dotfiles repo root
 
-echo "Done. Open a new terminal. NOTES_DIR must point to your notes repo path."
+# back it up safely (timestamped)
+bak="$HOME/.config/nvim/.backup-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$bak"
+mv ~/.config/nvim/lua/config/options.lua "$bak/"
+
+# try stow again from the dotfiles repo root
+cd ~/dotfiles
+# Stow only what you want; this creates symlinks under $HOME
+stow -v nvim
+stow -v shell
+
+# NOTES_DIR env (adjust to your notes repo location)
+if ! grep -q 'NOTES_DIR' "$HOME/.zshrc" 2>/dev/null; then
+  echo 'export NOTES_DIR="$HOME/notes"' >>"$HOME/.zshrc"
+  echo 'export EDITOR="nvim"' >>"$HOME/.zshrc"
+fi
+
+echo "Done. Open a new terminal. Check links with: ls -l ~/.config/nvim"
