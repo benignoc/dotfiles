@@ -13,6 +13,7 @@
 --   <leader>tp → filter by @person
 --   <leader>tg → filter by #tag
 --   <leader>tx → toggle [ ] ↔ [x] on current line
+--   <leader>tn → new todo item
 --   gf          : Follow [[wikilink]] (create if missing)
 return {
   {
@@ -583,13 +584,44 @@ return {
       end, {})
       vim.api.nvim_create_user_command("NotesToggleCheckbox", function()
         local line = vim.api.nvim_get_current_line()
+        if not line then
+          vim.notify("No line content found", vim.log.levels.ERROR)
+          return
+        end
+        
+        local new_line = nil
         if line:match("%[%s%]") then
-          vim.api.nvim_set_current_line(line:gsub("%[%s%]", "[x]", 1))
+          new_line = line:gsub("%[%s%]", "[x]", 1)
         elseif line:match("%[[xX]%]") then
-          vim.api.nvim_set_current_line(line:gsub("%[[xX]%]", "[ ]", 1))
+          new_line = line:gsub("%[[xX]%]", "[ ]", 1)
         else
           vim.notify("No checkbox on this line", vim.log.levels.INFO)
+          return
         end
+        
+        if new_line and new_line ~= line then
+          vim.api.nvim_set_current_line(new_line)
+        end
+      end, {})
+
+      -- Create new todo item
+      vim.api.nvim_create_user_command("NotesNewTodo", function()
+        vim.ui.input({ prompt = "Todo: " }, function(todo_text)
+          if not todo_text or todo_text == "" then
+            return
+          end
+          
+          local line_num = vim.api.nvim_win_get_cursor(0)[1]
+          local current_line = vim.api.nvim_get_current_line()
+          
+          -- If current line is empty or just whitespace, replace it
+          if current_line:match("^%s*$") then
+            vim.api.nvim_set_current_line("- [ ] " .. todo_text)
+          else
+            -- Insert new todo line after current line
+            vim.api.nvim_buf_set_lines(0, line_num, line_num, false, { "- [ ] " .. todo_text })
+          end
+        end)
       end, {})
 
       -- Keymaps (Tasks group)
@@ -602,6 +634,7 @@ return {
       vim.keymap.set("n", "<leader>tp", "<cmd>NotesTodosPerson<CR>", { desc = "TODOs: By @person" })
       vim.keymap.set("n", "<leader>tg", "<cmd>NotesTodosTag<CR>", { desc = "TODOs: By #tag" })
       vim.keymap.set("n", "<leader>tx", "<cmd>NotesToggleCheckbox<CR>", { desc = "TODOs: Toggle checkbox" })
+      vim.keymap.set("n", "<leader>tn", "<cmd>NotesNewTodo<CR>", { desc = "TODOs: New todo" })
 
       -- tiny debug helper
       vim.api.nvim_create_user_command("NotesDebug", function()
