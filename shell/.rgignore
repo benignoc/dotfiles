@@ -1,0 +1,9 @@
+Library/**
+node_modules/**
+.venv/**
+venv/**
+**/dist/**
+**/build/**
+**/target/**
+**/.cache/**
+**/.local/share/nvim/**

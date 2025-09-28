@@ -5,7 +5,14 @@
 --   <leader>z l : Insert [[link]]
 --   <leader>z s : Live search (Snacks if present)
 --   <leader>z t : Search by tag  (PCRE2 via ripgrep)
---   <leader>z b : Backlinks      (PCRE2 via ripgrep)
+--   <leader>z b : Backlinks      (Marksman LSP, fallback to rg)
+--   <leader>z B : Backlinks      (force ripgrep)
+--   TODOS
+--   <leader>tt → all tasks
+--   <leader>to → open tasks
+--   <leader>tp → filter by @person
+--   <leader>tg → filter by #tag
+--   <leader>tx → toggle [ ] ↔ [x] on current line
 --   gf          : Follow [[wikilink]] (create if missing)
 return {
   {
@@ -68,12 +75,22 @@ return {
         desc = "Notes: Search #tag",
         mode = "n",
       },
+      -- default: Marksman backlinks
       {
         "<leader>zb",
         function()
+          require("notes").backlinks_marksman()
+        end,
+        desc = "Notes: Backlinks (LSP)",
+        mode = "n",
+      },
+      -- force ripgrep backlinks
+      {
+        "<leader>zB",
+        function()
           require("notes").backlinks()
         end,
-        desc = "Notes: Backlinks",
+        desc = "Notes: Backlinks (ripgrep)",
         mode = "n",
       },
     },
@@ -184,6 +201,7 @@ return {
         end
         vim.cmd("copen")
       end
+
       ------------------------------------------------------------------
       -- run ripgrep, fill Quickfix safely, then show results UI
       ------------------------------------------------------------------
@@ -210,16 +228,15 @@ return {
         for s in stdout:gmatch("[^\r\n]+") do
           lines[#lines + 1] = s
         end
+
         -- helper: make file path absolute (respect ~ and Windows drive letters)
-        local function to_abs(p, cwd)
-          if p == nil or p == "" then
+        local function to_abs(p, cwd2)
+          if not p or p == "" then
             return p
           end
-          -- expand ~
           if p:sub(1, 1) == "~" then
             p = vim.fn.expand(p)
           end
-          -- already absolute? (win or unix)
           if vim.fn.has("win32") == 1 then
             if p:match("^%a:[/\\]") or p:match("^\\\\") then
               return p
@@ -229,21 +246,15 @@ return {
               return p
             end
           end
-          -- make absolute relative to the rg cwd
-          return vim.fn.fnamemodify(cwd .. "/" .. p, ":p")
+          return vim.fn.fnamemodify(cwd2 .. "/" .. p, ":p")
         end
 
         local qf = {}
         for _, line in ipairs(lines) do
           local file, lno, col, text = line:match("^(.-):(%d+):(%d+):(.*)$")
           if file and lno and col then
-            file = to_abs(file, cwd) -- <<< normalize to absolute
-            qf[#qf + 1] = {
-              filename = file,
-              lnum = tonumber(lno),
-              col = tonumber(col),
-              text = text,
-            }
+            file = to_abs(file, cwd)
+            qf[#qf + 1] = { filename = file, lnum = tonumber(lno), col = tonumber(col), text = text }
           end
         end
 
@@ -260,6 +271,8 @@ return {
         end
         show_results_ui(title)
       end
+      -- expose for other modules (e.g. todos)
+      M.run_rg_to_qf = run_rg_to_qf
 
       ------------------------------------------------------------------
       -- actions
@@ -276,6 +289,35 @@ return {
           open(file)
         end)
       end
+
+      -- Minimal "New note" command (vault root)
+      vim.api.nvim_create_user_command("NotesNew", function()
+        vim.ui.input({ prompt = "Title: " }, function(t)
+          if not t or t == "" then
+            return
+          end
+          local function slug(s)
+            return (s:gsub("[%s/]+", "-"):gsub("[^%w%-_]", ""):lower())
+          end
+          local file = M.root .. "/" .. slug(t) .. ".md"
+
+          if vim.fn.filereadable(file) == 0 then
+            local Path = require("plenary.path")
+            local body
+            if require("plenary.path").new(M.default_tpl):exists() then
+              body = Path:new(M.default_tpl):read():gsub("{{TITLE}}", t):gsub("{{title}}", t)
+            else
+              body = ("---\ntitle: %s\n---\n\n# %s\n"):format(t, t)
+            end
+            Path:new(file):write(body, "w")
+          end
+
+          vim.cmd.edit(vim.fn.fnameescape(file))
+        end)
+      end, {})
+
+      -- Use a non-conflicting key (leave Aerial's <leader>zn alone)
+      vim.keymap.set("n", "<leader>zN", "<cmd>NotesNew<CR>", { desc = "Notes: New note" })
 
       function M.open_today()
         local file = M.daily_dir .. "/" .. today() .. ".md"
@@ -357,33 +399,19 @@ return {
           if not input or input == "" then
             return
           end
-          local tag = input:gsub("^%s*#?", "") -- normalize
+          local tag = input:gsub("^%s*#?", "")
           local t = vim.pesc(tag)
           local class = "[A-Za-z0-9_/-]"
           local pat = table.concat({
-            -- body #tag with custom "word" class so '-' and '/' stay inside
-            "(?mi)"
-              .. "(?<!"
-              .. class
-              .. ")#"
-              .. t
-              .. "(?!"
-              .. class
-              .. ")",
-            -- frontmatter inline list
-            "(?mi)^tags:%s*%[[^]]*\\b#?"
-              .. t
-              .. "\\b",
-            -- frontmatter list items
-            "(?mi)^%s*-%s*#?"
-              .. t
-              .. "\\b",
+            "(?mi)" .. "(?<!" .. class .. ")#" .. t .. "(?!#?" .. class .. ")", -- body #tag
+            "(?mi)^tags:%s*%[[^]]*\\b#?" .. t .. "\\b", -- frontmatter inline list
+            "(?mi)^%s*-%s*#?" .. t .. "\\b", -- frontmatter list items
           }, "|")
           run_rg_to_qf({ cwd = M.root, title = "#" .. tag .. " (tags + frontmatter)", pattern = pat })
         end)
       end
 
-      -- BACKLINKS: wikilinks + markdown links (multi-path, case-insensitive)
+      -- BACKLINKS (ripgrep): wikilinks + markdown links (multi-path, case-insensitive)
       function M.backlinks()
         local buf = vim.api.nvim_buf_get_name(0)
         if buf == "" then
@@ -411,11 +439,174 @@ return {
         run_rg_to_qf({ cwd = M.root, title = "Backlinks to [[" .. title .. "]]", pattern = pat })
       end
 
+      ------------------------------------------------------------------
+      -- BACKLINKS via Marksman LSP (default on <leader>zb)
+      ------------------------------------------------------------------
+      local function loc_to_qf(loc)
+        local uri = loc.uri or loc.targetUri
+        local range = loc.range or loc.targetSelectionRange or loc.targetRange
+        local fname = uri and vim.uri_to_fname(uri) or ""
+        local lnum = (range and range.start and (range.start.line + 1)) or 1
+        local col = (range and range.start and (range.start.character + 1)) or 1
+        local text = ""
+        if fname ~= "" then
+          pcall(function()
+            local lines = vim.fn.readfile(fname)
+            text = (lines[lnum] or ""):gsub("%s+$", "")
+          end)
+        end
+        return { filename = fname, lnum = lnum, col = col, text = text }
+      end
+
+      function M.backlinks_marksman()
+        local bufnr = vim.api.nvim_get_current_buf()
+        local file = vim.api.nvim_buf_get_name(bufnr)
+        if file == "" then
+          vim.notify("Open a note first", vim.log.levels.WARN)
+          return
+        end
+
+        -- Is Marksman attached to this buffer?
+        local has_mm = false
+        for _, c in ipairs(vim.lsp.get_active_clients({ bufnr = bufnr })) do
+          if c.name == "marksman" then
+            has_mm = true
+            break
+          end
+        end
+        if not has_mm then
+          -- fallback to ripgrep
+          return M.backlinks()
+        end
+
+        -- Request references synchronously (works uniformly on 0.11)
+        local params = vim.lsp.util.make_position_params()
+        params.context = { includeDeclaration = false }
+
+        -- timeout in ms (tweak if you like)
+        local resp = vim.lsp.buf_request_sync(bufnr, "textDocument/references", params, 2000)
+        if type(resp) ~= "table" then
+          vim.notify("LSP returned no data; falling back to ripgrep", vim.log.levels.WARN)
+          return M.backlinks()
+        end
+
+        -- Convert responses to quickfix items
+        local function loc_to_qf(loc)
+          local uri = loc.uri or loc.targetUri
+          local range = loc.range or loc.targetSelectionRange or loc.targetRange
+          local fname = uri and vim.uri_to_fname(uri) or ""
+          local lnum = (range and range.start and (range.start.line + 1)) or 1
+          local col = (range and range.start and (range.start.character + 1)) or 1
+          local text = ""
+          if fname ~= "" then
+            pcall(function()
+              local lines = vim.fn.readfile(fname)
+              text = (lines[lnum] or ""):gsub("%s+$", "")
+            end)
+          end
+          return { filename = fname, lnum = lnum, col = col, text = text }
+        end
+
+        local qf = {}
+        for _, server_res in pairs(resp) do
+          if type(server_res) == "table" and type(server_res.result) == "table" then
+            for _, loc in ipairs(server_res.result) do
+              qf[#qf + 1] = loc_to_qf(loc)
+            end
+          end
+        end
+
+        if #qf == 0 then
+          vim.notify("No backlinks found via Marksman", vim.log.levels.INFO)
+          return
+        end
+
+        vim.fn.setqflist({}, "r")
+        vim.fn.setqflist(qf, "r")
+        vim.fn.setqflist({}, "a", { title = "Backlinks (marksman)" })
+
+        -- Show with your preferred UI
+        if vim.g.notes_results == "snacks" then
+          local ok_s, S = pcall(require, "snacks")
+          if ok_s and S.picker and S.picker.qflist then
+            pcall(function()
+              S.picker.qflist({ title = "Backlinks (marksman)" })
+            end)
+            return
+          end
+        end
+        local ok_fzf, fzf = pcall(require, "fzf-lua")
+        if ok_fzf then
+          fzf.quickfix()
+        else
+          vim.cmd("copen")
+        end
+      end
+      -- ===== Obsidian-style TODOs (checkboxes + #tags + @people) =====
+      -- Commands + keymaps reuse the same run_rg_to_qf + M.root
+
+      -- ensure vim.pesc exists (already defined above, but safe)
+      vim.pesc = vim.pesc or function(str)
+        return (str:gsub("([%%%^%$%(%)%.%[%]%*%+%-%?])", "%%%1"))
+      end
+
+      -- Commands
+      vim.api.nvim_create_user_command("NotesTodosAll", function()
+        run_rg_to_qf({ cwd = M.root, title = "TODOs (all)", pattern = [[(?m)^\s*[-*]\s*\[[ xX]\]\s+.*$]] })
+      end, {})
+      vim.api.nvim_create_user_command("NotesTodosOpen", function()
+        run_rg_to_qf({ cwd = M.root, title = "TODOs (open)", pattern = [[(?m)^\s*[-*]\s*\[\s\]\s+.*$]] })
+      end, {})
+      vim.api.nvim_create_user_command("NotesTodosPerson", function()
+        vim.ui.input({ prompt = "Person (without @): " }, function(person)
+          if not person or person == "" then
+            return
+          end
+          run_rg_to_qf({
+            cwd = M.root,
+            title = "TODOs for @" .. person,
+            pattern = [[(?m)^\s*[-*]\s*\[[ xX]\]\s+.*@]] .. vim.pesc(person) .. [[\b]],
+          })
+        end)
+      end, {})
+      vim.api.nvim_create_user_command("NotesTodosTag", function()
+        vim.ui.input({ prompt = "Tag (without #): " }, function(tag)
+          if not tag or tag == "" then
+            return
+          end
+          run_rg_to_qf({
+            cwd = M.root,
+            title = "TODOs tagged #" .. tag,
+            pattern = [[(?m)^\s*[-*]\s*\[[ xX]\]\s+.*#]] .. vim.pesc(tag) .. [[\b]],
+          })
+        end)
+      end, {})
+      vim.api.nvim_create_user_command("NotesToggleCheckbox", function()
+        local line = vim.api.nvim_get_current_line()
+        if line:match("%[%s%]") then
+          vim.api.nvim_set_current_line(line:gsub("%[%s%]", "[x]", 1))
+        elseif line:match("%[[xX]%]") then
+          vim.api.nvim_set_current_line(line:gsub("%[[xX]%]", "[ ]", 1))
+        else
+          vim.notify("No checkbox on this line", vim.log.levels.INFO)
+        end
+      end, {})
+
+      -- Keymaps (Tasks group)
+      local ok_wk, wk = pcall(require, "which-key")
+      if ok_wk then
+        wk.add({ { "<leader>t", group = "Tasks" } })
+      end
+      vim.keymap.set("n", "<leader>tt", "<cmd>NotesTodosAll<CR>", { desc = "TODOs: All" })
+      vim.keymap.set("n", "<leader>to", "<cmd>NotesTodosOpen<CR>", { desc = "TODOs: Open only" })
+      vim.keymap.set("n", "<leader>tp", "<cmd>NotesTodosPerson<CR>", { desc = "TODOs: By @person" })
+      vim.keymap.set("n", "<leader>tg", "<cmd>NotesTodosTag<CR>", { desc = "TODOs: By #tag" })
+      vim.keymap.set("n", "<leader>tx", "<cmd>NotesToggleCheckbox<CR>", { desc = "TODOs: Toggle checkbox" })
+
       -- tiny debug helper
       vim.api.nvim_create_user_command("NotesDebug", function()
         local uv = vim.uv or vim.loop
         local exists = (uv and uv.fs_stat and uv.fs_stat(M.root)) and "yes" or "no"
-
         local out = {
           "NOTES DEBUG",
           "root = " .. (M.root or "<nil>"),
