@@ -1,0 +1,15 @@
+# .zsh_plugins.txt - comments begin with "#"
+
+# Setup Zsh Completions
+zsh-users/zsh-autosuggestions
+zsh-users/zsh-completions
+zsh-users/zsh-history-substring-search
+zsh-users/zsh-syntax-highlighting
+
+# Tab fzf
+Aloxaf/fzf-tab
+
+# from ohmyzsh
+ohmyzsh/ohmyzsh path:plugins/colored-man-pages
+ohmyzsh/ohmyzsh path:plugins/git
+ohmyzsh/ohmyzsh path:plugins/macos
