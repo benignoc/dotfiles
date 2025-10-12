@@ -10,8 +10,8 @@ if ! command -v brew >/dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-brew update
-brew install neovim ripgrep fd fzf git lazygit node stow
+brew update && brew upgrade
+brew install neovim ripgrep fd fzf git lazygit node stow oh-my-posh
 
 # FZF key-bindings (optional)
 "$(brew --prefix)"/opt/fzf/install --key-bindings --completion --no-bash --no-fish --no-zsh
@@ -30,10 +30,11 @@ cd ~/dotfiles
 stow -v nvim
 stow -v shell
 
+# already in shell/.zshenv
 # NOTES_DIR env (adjust to your notes repo location)
-if ! grep -q 'NOTES_DIR' "$HOME/.zshrc" 2>/dev/null; then
-  echo 'export NOTES_DIR="$HOME/notes"' >>"$HOME/.zshrc"
-  echo 'export EDITOR="nvim"' >>"$HOME/.zshrc"
-fi
+# if ! grep -q 'NOTES_DIR' "$HOME/.zshrc" 2>/dev/null; then
+#   echo 'export NOTES_DIR="$HOME/notes"' >>"$HOME/.zshrc"
+#   echo 'export EDITOR="nvim"' >>"$HOME/.zshrc"
+# fi
 
 echo "Done. Open a new terminal. Check links with: ls -l ~/.config/nvim"
