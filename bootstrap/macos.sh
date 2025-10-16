@@ -11,13 +11,16 @@ if ! command -v brew >/dev/null; then
 fi
 
 brew update && brew upgrade
-brew install neovim ripgrep fd fzf git lazygit node stow oh-my-posh
+brew install neovim ripgrep fd fzf git lazygit node stow oh-my-posh tmux
 
 # FZF key-bindings (optional)
 "$(brew --prefix)"/opt/fzf/install --key-bindings --completion --no-bash --no-fish --no-zsh
 
 # Symlink dotfiles with stow (run from repo root)
 cd "$(dirname "$0")/.." # go to dotfiles repo root
+
+# Install TPM for tmux plugins
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 # back it up safely (timestamped)
 bak="$HOME/.config/nvim/.backup-$(date +%Y%m%d-%H%M%S)"
