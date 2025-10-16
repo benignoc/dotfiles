@@ -44,7 +44,7 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 # History
-HISTSIZE=5000
+HISTSIZE=1000
 HISTFILE=~/.zsh_history
 SAVEHIST=$HISTSIZE
 HISTDUP=erase
@@ -101,9 +101,11 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
 fi
 
 # Aliases
-alias ls="eza --no-filesize --long --color=always --no-user"
+alias ls="eza --icons=always"
+# alias ls="eza --no-filesize --long --color=always --no-user --icons=always"
 alias c='clear'
-alias ll='ls -l --color'
+alias ll='ls -long --color=always --no-user --icons=always'
+alias cd="z"
 
 # Shell integrations
 eval "$(fzf --zsh)"
