@@ -140,11 +140,11 @@ automatically-unhide-macos-hidden-apps = false
     alt-shift-8 = 'move-node-to-workspace 8'
     alt-shift-9 = 'move-node-to-workspace 9'
     alt-shift-b = 'move-node-to-workspace B'  # for Browser                 
-    alt-shift-f = 'move-node-to-workspace F'  # for File Explorer / Finder  
     alt-shift-m = 'move-node-to-workspace M'  # for Music                   
     alt-shift-n = 'move-node-to-workspace N'  # for Notes                   
     alt-shift-p = 'move-node-to-workspace P'  # for Photo Editing           
     alt-shift-t = 'move-node-to-workspace T'  # for Terminal                
+    alt-shift-f = 'fullscreen'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
     alt-tab = 'workspace-back-and-forth'
@@ -177,3 +177,11 @@ automatically-unhide-macos-hidden-apps = false
 [[on-window-detected]]
 if.app-id = 'com.github.wez.wezterm'
 run = "move-node-to-workspace T"
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Safari'
+run = "move-node-to-workspace B"
+
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+run = "move-node-to-workspace B"
