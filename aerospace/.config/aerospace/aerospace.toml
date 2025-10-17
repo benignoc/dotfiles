@@ -123,7 +123,6 @@ automatically-unhide-macos-hidden-apps = false
     alt-8 = 'workspace 8'
     alt-9 = 'workspace 9'
     alt-b = 'workspace B' # for Browser
-    alt-f = 'workspace F' # for File Explorer / Finder
     alt-m = 'workspace M' # for Music
     alt-n = 'workspace N' # for Notes
     alt-p = 'workspace P' # for Photo Editing
