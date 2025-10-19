@@ -58,8 +58,45 @@ return {
 
         -- Use agents for both chat and inline edits
         strategies = {
-          chat = { adapter = "claude_code" }, -- default chat = Claude Code
-          inline = { adapter = "claude_code" }, -- default inline edits = Claude
+          chat = {
+            adapter = {
+              name = "gemini",
+              model = "gemini-2.5-flash",
+            },
+            roles = {
+              user = "Benigno",
+            },
+          },
+          keymaps = {
+            send = {
+              modes = {
+                i = { "<C-CR>", "<C-s>" },
+              },
+            },
+            completion = {
+              modes = {
+                i = { "<C-x>" },
+              },
+            },
+          },
+          slash_commands = {
+            ["buffer"] = {
+              keymaps = {
+                modes = {
+                  i = "C-b",
+                },
+              },
+            },
+            ["fetch"] = {
+              keymaps = {
+                modes = {
+                  i = "C-f",
+                },
+              },
+            },
+          },
+          -- chat = { adapter = "claude_code" }, -- default chat = Claude Code
+          inline = { adapter = "gemini", model = "gemini-2.5-flash" }, -- default inline edits = Gemini
           -- Quick switch: :CodeCompanionActions → Change Adapter → Gemini CLI
         },
 
@@ -70,10 +107,11 @@ return {
       }
     end,
     keys = {
-      { "<leader>aa", "<cmd>CodeCompanionChat<cr>", desc = "AI Chat (CodeCompanion)" },
+      { "<leader>aa", "<cmd>CodeCompanionChat Toggle<cr>", desc = "AI Chat (CodeCompanion)" },
       { "<leader>ai", "<cmd>CodeCompanionInline<cr>", desc = "AI Inline Edit (visual select first)" },
       { "<leader>as", "<cmd>CodeCompanionSuperDiff<cr>", desc = "AI Super Diff (review agent edits)" },
       { "<leader>am", "<cmd>CodeCompanionActions<cr>", desc = "AI Actions / Switch Agent" },
+      { "<leader>ac", "<cmd>CodeCompanionChat Add<cr>", desc = "Add code to a chat buffer", mode = { "v" } },
     },
   },
 }
