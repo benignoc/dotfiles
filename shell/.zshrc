@@ -97,7 +97,8 @@ fi
 
 # oh-my-posh
 if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config atomicBit)"
+  # eval "$(oh-my-posh init zsh --config atomic)"
+  eval "$(oh-my-posh init zsh --config '~/.config/ohmyposh/atomicBen.toml')"
 fi
 
 # Aliases
