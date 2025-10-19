@@ -31,6 +31,7 @@ mv ~/.config/nvim/lua/config/options.lua "$bak/"
 cd ~/dotfiles
 # Stow only what you want; this creates symlinks under $HOME
 stow -v nvim
+stow -v ohmyposh
 stow -v shell
 
 # already in shell/.zshenv
