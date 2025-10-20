@@ -121,6 +121,7 @@ automatically-unhide-macos-hidden-apps = false
     alt-7 = 'workspace 7'
     alt-8 = 'workspace 8'
     alt-9 = 'workspace 9'
+    alt-a = 'workspace A' # for AI
     alt-b = 'workspace B' # for Browser
     alt-m = 'workspace M' # for Music
     alt-n = 'workspace N' # for Notes
@@ -136,6 +137,7 @@ automatically-unhide-macos-hidden-apps = false
     alt-shift-7 = 'move-node-to-workspace 7'
     alt-shift-8 = 'move-node-to-workspace 8'
     alt-shift-9 = 'move-node-to-workspace 9'
+    alt-shift-a = 'move-node-to-workspace A'  # for AI
     alt-shift-b = 'move-node-to-workspace B'  # for Browser                 
     alt-shift-m = 'move-node-to-workspace M'  # for Music                   
     alt-shift-n = 'move-node-to-workspace N'  # for Notes                   
@@ -182,3 +184,7 @@ run = "move-node-to-workspace B"
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
 run = "move-node-to-workspace B"
+
+[[on-window-detected]]
+if.app-id = 'com.openai.chat'
+run = "move-node-to-workspace A"
