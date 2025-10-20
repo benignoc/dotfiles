@@ -566,7 +566,7 @@ return {
           run_rg_to_qf({
             cwd = M.root,
             title = "TODOs for @" .. person,
-            pattern = [[(?m)^\s*[-*]\s*\[[ xX]\]\s+.*@]] .. vim.pesc(person) .. [[\b]],
+            pattern = [[(?m)^\s*[-*]\s*\[\s\]\s+.*@]] .. vim.pesc(person) .. [[\b]],
           })
         end)
       end, {})
@@ -578,7 +578,7 @@ return {
           run_rg_to_qf({
             cwd = M.root,
             title = "TODOs tagged #" .. tag,
-            pattern = [[(?m)^\s*[-*]\s*\[[ xX]\]\s+.*#]] .. vim.pesc(tag) .. [[\b]],
+            pattern = [[(?m)^\s*[-*]\s*\[\s\]\s+.*#]] .. vim.pesc(tag) .. [[\b]],
           })
         end)
       end, {})
@@ -588,7 +588,7 @@ return {
           vim.notify("No line content found", vim.log.levels.ERROR)
           return
         end
-        
+
         local new_line = nil
         if line:match("%[%s%]") then
           new_line = line:gsub("%[%s%]", "[x]", 1)
@@ -598,7 +598,7 @@ return {
           vim.notify("No checkbox on this line", vim.log.levels.INFO)
           return
         end
-        
+
         if new_line and new_line ~= line then
           vim.api.nvim_set_current_line(new_line)
         end
@@ -610,10 +610,10 @@ return {
           if not todo_text or todo_text == "" then
             return
           end
-          
+
           local line_num = vim.api.nvim_win_get_cursor(0)[1]
           local current_line = vim.api.nvim_get_current_line()
-          
+
           -- If current line is empty or just whitespace, replace it
           if current_line:match("^%s*$") then
             vim.api.nvim_set_current_line("- [ ] " .. todo_text)
