@@ -126,6 +126,7 @@ automatically-unhide-macos-hidden-apps = false
     alt-m = 'workspace M' # for Music
     alt-n = 'workspace N' # for Notes
     alt-p = 'workspace P' # for Photo Editing
+    alt-s = 'workspace S' # for Phone Simulator
     alt-t = 'workspace T' # for Terminal
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
@@ -142,6 +143,7 @@ automatically-unhide-macos-hidden-apps = false
     alt-shift-m = 'move-node-to-workspace M'  # for Music                   
     alt-shift-n = 'move-node-to-workspace N'  # for Notes                   
     alt-shift-p = 'move-node-to-workspace P'  # for Photo Editing           
+    alt-shift-s = 'move-node-to-workspace S'  # for phone simulator
     alt-shift-t = 'move-node-to-workspace T'  # for Terminal                
     alt-shift-f = 'fullscreen'
 
@@ -188,3 +190,7 @@ run = "move-node-to-workspace B"
 [[on-window-detected]]
 if.app-id = 'com.openai.chat'
 run = "move-node-to-workspace A"
+
+[[on-window-detected]]
+if.app-id = 'com.apple.iphonesimulator'
+run = "move-node-to-workspace S"
