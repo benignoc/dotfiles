@@ -11,101 +11,79 @@ return {
       local adapters = require("codecompanion.adapters")
 
       return {
-        -- Keep UI simple and fast
+        -- === Adapters =======================================================
         adapters = {
+          -- Show model picker each time (and avoid silent failures)
           opts = {
-            show_model_choices = false, -- don't prompt for models when switching
+            show_model_choices = true, -- you'll be prompted for the model
           },
 
-          -- === ACP adapters (agent CLIs that use your user subscription) ===
+          -- ACP adapters (no API billing if you auth via their CLIs)
           acp = {
-            -- Claude Code via ACP with Claude Pro OAuth token (no API billing)
+            -- Claude Code via ACP (uses your Claude Pro OAuth token)
             claude_code = function()
               return adapters.extend("claude_code", {
-                -- Paste the token you get from: `claude setup-token`
-                -- You can also pull it from 1Password/GPG using `cmd:...`
                 env = {
                   CLAUDE_CODE_OAUTH_TOKEN = os.getenv("CLAUDE_CODE_OAUTH_TOKEN") or "paste-oauth-token-here",
                 },
               })
             end,
 
-            -- Gemini CLI via ACP (no billing key required if you auth via CLI);
-            -- you *can* set GEMINI_API_KEY if you have one from Google AI Studio.
+            -- Gemini CLI via ACP
             gemini_cli = function()
               return adapters.extend("gemini_cli", {
-                -- If your system needs a custom executable path, uncomment commands:
-                -- commands = { default = { "gemini", "--experimental-acp" } },
                 defaults = {
-                  auth_method = "oauth-personal", -- or "gemini-api-key" / "vertex-ai"
+                  auth_method = "oauth-personal",
                   timeout = 20000,
-                  mcpServers = {}, -- add MCP servers if you like
+                  mcpServers = {},
                 },
-                env = {
-                  GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or "",
-                },
+                env = { GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or "" },
               })
             end,
           },
 
-          -- (Optional) HTTP adapters if later you decide to use API keys:
-          -- http = {
-          --   anthropic = function() ... end,
-          --   gemini = function() ... end,
-          --   openai = function() ... end,
-          -- },
+          -- IMPORTANT: do NOT override the built-in Ollama adapter here.
+          -- Use the built-in "ollama" adapter and let the model picker ask you.
         },
 
-        -- Use agents for both chat and inline edits
+        -- === Strategies (how CC behaves in chat/inline) =====================
         strategies = {
+          --   - "ollama" (your local Ollama server; pick model like qwen2.5-coder:7b or llama3.2:3b)
+          -- CHAT: use Gemini CLI via ACP as the default adapter/model
           chat = {
-            adapter = {
-              name = "gemini",
-              model = "gemini-2.5-flash",
-            },
-            roles = {
-              user = "Benigno",
-            },
+            -- adapter left unset on purpose so you can choose when opening chat
+            adapter = "gemini",
+            model = "gemini-2.5-flash", -- Replace with the actual model you want to use
+            roles = { user = "Benigno" },
           },
+
+          -- INLINE: also leave unset so you can choose per use (or set a default if you prefer)
+          inline = {
+            adapter = "gemini",
+            model = "gemini-2.5-flash", -- Replace with the actual model you want to use
+            -- adapter = "ollama",
+            -- model   = "qwen2.5-coder:7b",
+          },
+
+          -- Keymaps (your originals, kept)
           keymaps = {
-            send = {
-              modes = {
-                i = { "<C-CR>", "<C-s>" },
-              },
-            },
-            completion = {
-              modes = {
-                i = { "<C-x>" },
-              },
-            },
+            send = { modes = { i = { "<C-CR>", "<C-s>" } } },
+            completion = { modes = { i = { "<C-x>" } } },
           },
           slash_commands = {
-            ["buffer"] = {
-              keymaps = {
-                modes = {
-                  i = "C-b",
-                },
-              },
-            },
-            ["fetch"] = {
-              keymaps = {
-                modes = {
-                  i = "C-f",
-                },
-              },
-            },
+            ["buffer"] = { keymaps = { modes = { i = "C-b" } } },
+            ["fetch"] = { keymaps = { modes = { i = "C-f" } } },
           },
-          -- chat = { adapter = "claude_code" }, -- default chat = Claude Code
-          inline = { adapter = "gemini", model = "gemini-2.5-flash" }, -- default inline edits = Gemini
-          -- Quick switch: :CodeCompanionActions → Change Adapter → Gemini CLI
         },
 
-        -- Nice defaults
+        -- Plugin opts
         opts = {
-          log_level = "WARN", -- set to "DEBUG" if you need to troubleshoot
+          log_level = "DEBUG", -- helpful while testing adapter/model switching
         },
       }
     end,
+
+    -- Keys (unchanged)
     keys = {
       { "<leader>aa", "<cmd>CodeCompanionChat Toggle<cr>", desc = "AI Chat (CodeCompanion)" },
       { "<leader>ai", "<cmd>CodeCompanionInline<cr>", desc = "AI Inline Edit (visual select first)" },
