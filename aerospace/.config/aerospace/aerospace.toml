@@ -143,7 +143,7 @@ automatically-unhide-macos-hidden-apps = false
     alt-shift-m = 'move-node-to-workspace M'  # for Music                   
     alt-shift-n = 'move-node-to-workspace N'  # for Notes                   
     alt-shift-p = 'move-node-to-workspace P'  # for Photo Editing           
-    alt-shift-s = 'move-node-to-workspace S'  # for phone simulator
+    # alt-shift-s = 'move-node-to-workspace S'  # for phone simulator
     alt-shift-t = 'move-node-to-workspace T'  # for Terminal                
     alt-shift-f = 'fullscreen'
 
