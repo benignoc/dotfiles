@@ -11,9 +11,9 @@ fi
 
 # nvim config
 mkdir -p ~/.config/nvim
-rsync -a --delete "$(pwd)/nvim/" ~/.config/nvim/
+rsync -a --delete "$(pwd)/win_home/dotfiles/nvim/" ~/.config/nvim/
 
 # shell
-grep -q 'NOTES_DIR' ~/.bashrc 2>/dev/null || cat "$(pwd)/shell/wsl.bash" >>~/.bashrc
+grep -q 'NOTES_DIR' ~/.bashrc 2>/dev/null || cat "$(pwd)/win_home/dotfiles/shell/wsl.bash" >>~/.bashrc
 
-echo "Done. Reopen terminal. Ensure NOTES_DIR points to /home/<u>/notes (or your path)"
+echo "Done. Reopen terminal. Ensure NOTES_DIR points to /home/<user>/notes (or your path)"
