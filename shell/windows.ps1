@@ -3,3 +3,6 @@ if (-not (Get-Item env:NOTES_DIR -ErrorAction SilentlyContinue)) {
   [Environment]::SetEnvironmentVariable("NOTES_DIR", "$HOME\OneDrive - Purever Industries\notes", "User")
 }
 $env:EDITOR = "nvim"
+
+# Show all options for completion on paths.
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
