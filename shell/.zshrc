@@ -123,5 +123,15 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-# Source local environment
-[ -f "$HOME/.zshenv.local" ] && source "$HOME/.zshenv.local"
+# Use Gemini to create commit messages with git
+function gcommit() {
+  diff=$(git diff --staged)
+
+  if [ -z "$diff" ]; then
+    echo "No staged changes to commit."
+    return 1
+  fi
+  echo "Generating commit message..."
+  msg=$(echo "$diff" | gemini -p "Write a concise Conventional Commit message for this diff. Output ONLY the message.")
+  git commit -m "$msg"
+}
