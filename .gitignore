@@ -1,3 +1,4 @@
 shell/.zshenv
 shell/.zshenv.local
 .DS_Store
+__pychache__
