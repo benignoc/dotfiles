@@ -1,0 +1,6 @@
+scripts/client_secret.json
+scripts/token.json
+client_secret.json
+token.json
+__pycache__/
+.DS_Store
