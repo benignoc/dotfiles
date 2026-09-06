@@ -135,3 +135,13 @@ function gcommit() {
   msg=$(echo "$diff" | gemini -p "Write a concise Conventional Commit message for this diff. Output ONLY the message.")
   git commit -m "$msg"
 }
+
+# Added by Antigravity IDE
+export PATH="/Users/benigno/.antigravity-ide/antigravity-ide/bin:$PATH"
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/benigno/.local/bin:$PATH"
+
+# Auto update codebase memory mcp
+# /Users/benigno/.local/bin/install.sh

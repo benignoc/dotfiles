@@ -1,5 +1,6 @@
 # Place a copy of this config to ~/.aerospace.toml
 # After that, you can edit ~/.aerospace.toml to your liking
+config-version = 2
 
 # You can use it to add commands that run after AeroSpace startup.
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
@@ -7,6 +8,7 @@ after-startup-command = []
 
 # Start AeroSpace at login
 start-at-login = true
+persistent-workspaces = ['5', '6', '7', '8', '9', 'A', 'B', 'M', 'N', 'P', 'S', 'T']
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -175,22 +177,27 @@ automatically-unhide-macos-hidden-apps = false
     up = 'volume up'
     shift-down = ['volume set 0', 'mode main']
 
+# Automatic movements
 [[on-window-detected]]
-if.app-id = 'com.github.wez.wezterm'
-run = "move-node-to-workspace T"
+if = 'test %{app-bundle-id} = com.github.wez.wezterm'
+run = 'move-node-to-workspace T'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.Safari'
-run = "move-node-to-workspace B"
+if = 'test %{app-bundle-id} = com.apple.Safari'
+run = 'move-node-to-workspace B'
 
 [[on-window-detected]]
-if.app-id = 'com.google.Chrome'
-run = "move-node-to-workspace B"
+if = 'test %{app-bundle-id} = com.google.Chrome'
+run = 'move-node-to-workspace B'
 
 [[on-window-detected]]
-if.app-id = 'com.openai.chat'
-run = "move-node-to-workspace A"
+if = 'test %{app-bundle-id} = com.openai.codex'
+run = 'move-node-to-workspace A'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.iphonesimulator'
-run = "move-node-to-workspace S"
+if = 'test %{app-name} ~= ghostty'
+run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
+if = 'test %{app-bundle-id} = com.apple.iphonesimulator'
+run = 'move-node-to-workspace S'
